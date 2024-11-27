@@ -24,19 +24,6 @@ start:
     $(image) --port=8000 --workers=1
 	@make log
 
-
-start-webui:
-	@docker run -d \
-    --name $(container) \
-    --env-file .env \
-    -p 8000:8000 \
-    -p 8001:8001 \
-    -v $(shell pwd)/Log:/home/openai-forward/Log \
-	-v $(shell pwd)/FLAXKV_DB:/home/openai-forward/FLAXDV_DB \
-    -v $(shell pwd)/openai_forward:/home/openai-forward/openai_forward \
-    $(webui_image)
-	@make log
-
 exec:
 	docker exec -it $(container) sh
 
