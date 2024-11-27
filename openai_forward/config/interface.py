@@ -186,8 +186,6 @@ class Config(Base):
     timeout: int = 6
     benchmark_mode: bool = False
     proxy: str = ''
-    webui_restart_port: int = 15555
-    webui_log_port: int = 15556
     default_stream_response: bool = True
 
     def convert_to_env(self, set_env=False):
@@ -202,8 +200,6 @@ class Config(Base):
         env_dict['TZ'] = self.timezone
         env_dict['TIMEOUT'] = str(self.timeout)
         env_dict['BENCHMARK_MODE'] = str(self.benchmark_mode)
-        env_dict['WEBUI_RESTART_PORT'] = str(self.webui_restart_port)
-        env_dict['WEBUI_LOG_PORT'] = str(self.webui_log_port)
         env_dict['DEFAULT_STREAM_RESPONSE'] = str(self.default_stream_response)
 
         if self.proxy:
