@@ -457,8 +457,6 @@ class OpenaiForward(GenericForward):
                 result_info["uid"] = uid
 
                 if LOG_OPENAI:
-                    if logger_instance.webui:
-                        logger_instance.q.put({"uid": uid, "result": result_info})
                     logger_instance.log_result(result_info)
 
                 # todo: Deprecated soon
