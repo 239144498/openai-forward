@@ -1,4 +1,4 @@
-from flaxkv.pack import encode
+#from flaxkv.pack import encode
 from loguru import logger
 
 from openai_forward.config.settings import (
