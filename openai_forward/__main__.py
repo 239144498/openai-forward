@@ -78,9 +78,6 @@ class Cli:
         self._stop_uvicorn()
         self._start_uvicorn(**kwargs)
 
-    def _stop_streamlit(self):
-        self._stop(uvicorn=False)
-
     def _stop_uvicorn(self):
         self._stop(streamlit=False)
 
