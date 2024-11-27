@@ -25,9 +25,6 @@ class Cli:
         Args:
             port (int): The port number on which to run the server.
             workers (int): The number of worker processes to run.
-            start_ui (bool): Whether to start the web UI.
-            ui_port (int): The port number on which to run streamlit.
-
         Returns:
             None
         """
@@ -79,21 +76,15 @@ class Cli:
         self._start_uvicorn(**kwargs)
 
     def _stop_uvicorn(self):
-        self._stop(streamlit=False)
+        self._stop()
 
-    def _stop(self, uvicorn=True, streamlit=True):
+    def _stop(self, uvicorn=True):
         if uvicorn and self.uvicorn_proc.poll() is None:
             self.uvicorn_proc.send_signal(signal.SIGINT)
             try:
                 self.uvicorn_proc.wait(timeout=15)
             except subprocess.TimeoutExpired:
                 self.uvicorn_proc.kill()
-        if streamlit and self.streamlit_proc.poll() is None:
-            self.streamlit_proc.send_signal(signal.SIGINT)
-            try:
-                self.streamlit_proc.wait(timeout=5)
-            except subprocess.TimeoutExpired:
-                self.streamlit_proc.kill()
 
     @staticmethod
     def convert(log_folder: str = None, target_path: str = None):
