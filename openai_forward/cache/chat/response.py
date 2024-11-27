@@ -4,7 +4,7 @@ import random
 from typing import List
 
 from fastapi.responses import Response, StreamingResponse
-from flaxkv.pack import encode
+#from flaxkv.pack import encode
 from loguru import logger
 
 from openai_forward.config.settings import CACHE_OPENAI, FWD_KEY
