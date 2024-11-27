@@ -1,4 +1,4 @@
-from flaxkv import FlaxKV
+#from flaxkv import FlaxKV
 
 from ..config.settings import CACHE_BACKEND, CACHE_ROOT_PATH_OR_URL, LOG_CACHE_DB_INFO
 
