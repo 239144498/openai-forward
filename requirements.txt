@@ -1,4 +1,4 @@
-fire
+#fire
 uvicorn
 fastapi
 pyyaml
