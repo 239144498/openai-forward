@@ -11,7 +11,7 @@ from openai_forward.console import print_rate_limit_info, print_startup_info
 from openai_forward.content.config import setting_log
 from openai_forward.helper import format_route_prefix
 
-config_file_path = Path("openai-forward-config.yaml")
+config_file_path = Path("../../openai-forward-config.yaml")
 if config_file_path.exists():
     with open(config_file_path) as file:
         config = yaml.safe_load(file)
