@@ -7,7 +7,7 @@ import signal
 import subprocess
 from pathlib import Path
 
-import fire
+#import fire
 import uvicorn
 import yaml
 
@@ -138,7 +138,8 @@ class Cli:
 
 
 def main():
-    fire.Fire(Cli)
+    Cli().run()
+    # fire.Fire(Cli)
 
 
 if __name__ == "__main__":
