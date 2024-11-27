@@ -1,0 +1,13 @@
+fire
+uvicorn
+fastapi
+pyyaml
+python-dotenv
+slowapi
+rich
+pytz
+loguru
+orjson
+aiohttp
+#litellm
+flaxkv
