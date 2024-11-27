@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from fastapi.responses import Response
-from flaxkv.pack import encode
+#from flaxkv.pack import encode
 from loguru import logger
 
 from ...config.settings import CACHE_OPENAI
