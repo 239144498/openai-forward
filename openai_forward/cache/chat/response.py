@@ -58,8 +58,6 @@ def get_response_from_key(key, payload_info, request, **kwargs):
             "is_tool_calls": is_tool_calls,
             'uid': uid,
         }
-        if logger_instance.webui:
-            logger_instance.q.put({"uid": uid, "result": result_info})
 
         logger_instance.log_result(result_info)
 
