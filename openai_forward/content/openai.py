@@ -21,35 +21,6 @@ class LoggerBase(ABC):
         kwargs = {f"{_prefix}{_suffix}": True}
         self.logger = logger.bind(**kwargs)
 
-        self.webui = False
-        if os.environ.get("OPENAI_FORWARD_WEBUI", "false").strip().lower() == 'true':
-            self.webui = True
-
-            import zmq
-            from flaxkv.helper import SimpleQueue
-
-            context = zmq.Context()
-            socket = context.socket(zmq.DEALER)
-            webui_log_port = int(os.environ.get("WEBUI_LOG_PORT", 15556))
-            socket.connect(f"tcp://localhost:{webui_log_port}")
-
-            self.q = SimpleQueue(maxsize=200)
-
-            def _worker():
-                while True:
-                    message: dict = self.q.get(block=True)
-                    if message.get("payload"):
-                        uid = b"0" + message["uid"].encode()
-                        msg = message["payload"]
-                    else:
-                        uid = b"1" + message["uid"].encode()
-                        msg = message["result"]
-                        msg = orjson.dumps(msg)
-
-                    socket.send_multipart([uid, msg])
-
-            threading.Thread(target=_worker, daemon=True).start()
-
     @staticmethod
     @abstractmethod
     def parse_payload(request: Request, raw_payload) -> Tuple[Dict, bytes]:
@@ -170,9 +141,6 @@ class ChatLogger(LoggerBase):
             dict: A dictionary containing parsed messages, model, IP address, UID, and datetime.
         """
         uid = get_unique_id()
-
-        if self.webui:
-            self.q.put({"uid": uid, "payload": raw_payload})
 
         if raw_payload:
             payload = orjson.loads(raw_payload)
