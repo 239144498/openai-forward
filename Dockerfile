@@ -23,4 +23,4 @@ RUN apt-get update && \
 
 
 EXPOSE 8000
-ENTRYPOINT ["python3", "-m", "openai_forward.__main__", "run"]
+ENTRYPOINT ["python3", "-m", "main", "run"]
