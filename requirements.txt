@@ -1,3 +1,4 @@
+fire
 uvicorn
 fastapi
 pyyaml
@@ -9,4 +10,4 @@ loguru
 orjson
 aiohttp
 #litellm
-flaxkv
+#flaxkv
