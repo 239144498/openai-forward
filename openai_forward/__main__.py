@@ -18,7 +18,7 @@ def save_yaml(path: Path, data: dict):
 
 
 class Cli:
-    def run(self, port=8000, workers=1, start_ui=True, ui_port=8001):
+    def run(self, port=8000, workers=1):
         """
         Runs the application using the Uvicorn server.
 
