@@ -8,7 +8,7 @@ from typing import AsyncGenerator
 
 import aiohttp
 import anyio
-import litellm
+#import litellm
 import orjson
 from aiohttp import TCPConnector
 from fastapi import HTTPException, Request, status
