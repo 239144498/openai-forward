@@ -18,34 +18,13 @@ def save_yaml(path: Path, data: dict):
 
 
 class Cli:
-    def run_web(self, port=8001, openai_forward_host='localhost', wait=True):
-        """
-        Runs the web UI using the Streamlit server.
-
-        Args:
-            port (int): The port number on which to run the server.
-            openai_forward_host (str): The host of the OpenAI Forward server.
-            wait (bool): Whether to wait for the server to stop. Default is True.
-
-        Returns:
-            None
-        """
-        os.environ['OPENAI_FORWARD_HOST'] = openai_forward_host
-        try:
-            self._start_streamlit(port=port, wait=wait)
-        except KeyboardInterrupt:
-            ...
-        except Exception as e:
-            raise
-
-    def run(self, port=8000, workers=1, webui=False, start_ui=True, ui_port=8001):
+    def run(self, port=8000, workers=1, start_ui=True, ui_port=8001):
         """
         Runs the application using the Uvicorn server.
 
         Args:
             port (int): The port number on which to run the server.
             workers (int): The number of worker processes to run.
-            webui (bool): Whether to run the web UI. Default is False.
             start_ui (bool): Whether to start the web UI.
             ui_port (int): The port number on which to run streamlit.
 
@@ -59,79 +38,15 @@ class Cli:
         ssl_keyfile = os.environ.get("ssl_keyfile", None) or None
         ssl_certfile = os.environ.get("ssl_certfile", None) or None
 
-        if not webui:
-            uvicorn.run(
-                app="openai_forward.app:app",
-                host="0.0.0.0",
-                port=port,
-                workers=workers,
-                app_dir="..",
-                ssl_keyfile=ssl_keyfile,
-                ssl_certfile=ssl_certfile,
-            )
-        else:
-            import threading
-
-            import zmq
-
-            os.environ['OPENAI_FORWARD_WEBUI'] = 'true'
-
-            context = zmq.Context()
-            socket = context.socket(zmq.REP)
-            restart_port = int(os.environ.get('WEBUI_RESTART_PORT', 15555))
-            socket.bind(f"tcp://*:{restart_port}")
-            log_socket = context.socket(zmq.ROUTER)
-            log_port = int(os.environ.get("WEBUI_LOG_PORT", 15556))
-            log_socket.bind(f"tcp://*:{log_port}")
-            subscriber_info = {}
-
-            def mq_worker(log_socket: zmq.Socket):
-
-                while True:
-                    identity, uid, message = log_socket.recv_multipart()
-                    if uid == b"/subscribe":
-                        subscriber_info[identity] = True
-                        continue
-                    else:
-                        for subscriber, _ in subscriber_info.items():
-                            log_socket.send_multipart([subscriber, uid, message])
-
-            thread = threading.Thread(target=mq_worker, args=(log_socket,))
-            thread.daemon = True
-            thread.start()
-
-            self._start_uvicorn(
-                port=port,
-                workers=workers,
-                ssl_keyfile=ssl_keyfile,
-                ssl_certfile=ssl_certfile,
-            )
-
-            if start_ui:
-                self._start_streamlit(port=ui_port, wait=False)
-
-            atexit.register(self._stop_uvicorn)
-
-            while True:
-                message = socket.recv()
-                config_dict: dict = pickle.loads(message)
-                config_path = Path("openai-forward-config.yaml")
-                # backup
-                time_str = datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
-                backup_path = Path(f"openai-forward-config.yaml.{time_str}.bak")
-                if config_path.exists():
-                    # rename openai-forward-config.yaml to openai-forward-config.yaml.bak
-                    config_path.rename(backup_path)
-
-                save_yaml(config_path, config_dict)
-
-                self._restart_uvicorn(
-                    port=port,
-                    workers=workers,
-                    ssl_keyfile=ssl_keyfile,
-                    ssl_certfile=ssl_certfile,
-                )
-                socket.send(f"Restart success!".encode())
+        uvicorn.run(
+            app="openai_forward.app:app",
+            host="0.0.0.0",
+            port=port,
+            workers=workers,
+            app_dir="..",
+            ssl_keyfile=ssl_keyfile,
+            ssl_certfile=ssl_certfile,
+        )
 
     def _start_uvicorn(self, port, workers, ssl_keyfile=None, ssl_certfile=None):
         from openai_forward.helper import wait_for_serve_start
@@ -158,33 +73,6 @@ class Cli:
             timeout=10,
             suppress_exception=suppress_exception,
         )
-
-    def _start_streamlit(self, port, wait=False):
-        from openai_forward.helper import relp
-
-        self.streamlit_proc = subprocess.Popen(
-            [
-                'streamlit',
-                'run',
-                f'{relp("webui/run.py")}',
-                '--server.port',
-                str(port),
-                '--server.headless',
-                'true',
-                '--server.enableCORS',
-                'true',
-                '--server.runOnSave',
-                'true',
-                '--theme.base',
-                'light',
-                '--browser.gatherUsageStats',
-                'false',
-            ]
-        )
-
-        atexit.register(self._stop_streamlit)
-        if wait:
-            self.streamlit_proc.wait()
 
     def _restart_uvicorn(self, **kwargs):
         self._stop_uvicorn()
